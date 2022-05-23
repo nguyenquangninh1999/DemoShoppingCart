@@ -29,6 +29,15 @@ class Cart
         $this->instance(self::DEFAULT_INSTANCE);
     }
 
+    public function instance($instance = null)
+    {
+        $instance = $instance ?: self::DEFAULT_INSTANCE;
+
+        $this->instance = sprintf('%s.%s', 'cart', $instance);
+
+        return $this;
+    }
+
     public function add($id, $name = null, $qty = null, $price = null, array $options = [])
     {
 //        if ($this->isMulti($id)) {
