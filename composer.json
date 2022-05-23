@@ -47,7 +47,7 @@
                 "Ninh\\ShoppingCart\\ShoppingCartServiceProvider"
             ],
             "aliases": {
-                "ShoppingCart": "Ninh\\ShoppingCart\\ShoppingCartFacade"
+                "Cart": "Ninh\\ShoppingCart\\Facades\\Cart"
             }
         }
     }
