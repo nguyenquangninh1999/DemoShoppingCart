@@ -185,4 +185,9 @@ class Cart
         }
         return $total ?? 0;
     }
+
+    public function destroy()
+    {
+        $this->session->remove($this->instance);
+    }
 }
