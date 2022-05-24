@@ -2,11 +2,10 @@
 
 namespace Ninh\ShoppingCart;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
-use Illuminate\Contracts\Support\Jsonable;
 
-class CartItem implements Arrayable, Jsonable
+
+class CartItem
 {
     public $rowId;
 
@@ -43,35 +42,7 @@ class CartItem implements Arrayable, Jsonable
         $this->rowId = $this->generateRowId($id, $options);
     }
 
-    public function price($decimals = null, $decimalPoint = null, $thousandSeperator = null)
-    {
-        return $this->numberFormat($this->price, $decimals, $decimalPoint, $thousandSeperator);
-    }
 
-    public function priceTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
-    {
-        return $this->numberFormat($this->priceTax, $decimals, $decimalPoint, $thousandSeperator);
-    }
-
-    public function subtotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
-    {
-        return $this->numberFormat($this->subtotal, $decimals, $decimalPoint, $thousandSeperator);
-    }
-
-    public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
-    {
-        return $this->numberFormat($this->total, $decimals, $decimalPoint, $thousandSeperator);
-    }
-
-    public function tax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
-    {
-        return $this->numberFormat($this->tax, $decimals, $decimalPoint, $thousandSeperator);
-    }
-
-    public function taxTotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
-    {
-        return $this->numberFormat($this->taxTotal, $decimals, $decimalPoint, $thousandSeperator);
-    }
 
     public function setQuantity($qty)
     {
@@ -79,14 +50,6 @@ class CartItem implements Arrayable, Jsonable
             throw new \InvalidArgumentException('Please supply a valid quantity.');
 
         $this->qty = $qty;
-    }
-
-    public function updateFromBuyable(Buyable $item)
-    {
-        $this->id       = $item->getBuyableIdentifier($this->options);
-        $this->name     = $item->getBuyableDescription($this->options);
-        $this->price    = $item->getBuyablePrice($this->options);
-        $this->priceTax = $this->price + $this->tax;
     }
 
     public function updateFromArray(array $attributes)
@@ -99,58 +62,6 @@ class CartItem implements Arrayable, Jsonable
         $this->options  = new CartItemOptions(array_get($attributes, 'options', $this->options));
 
         $this->rowId = $this->generateRowId($this->id, $this->options->all());
-    }
-
-    public function associate($model)
-    {
-        $this->associatedModel = is_string($model) ? $model : get_class($model);
-
-        return $this;
-    }
-
-    public function setTaxRate($taxRate)
-    {
-        $this->taxRate = $taxRate;
-
-        return $this;
-    }
-
-    public function __get($attribute)
-    {
-        if (property_exists($this, $attribute)) {
-            return $this->{$attribute};
-        }
-
-        if ($attribute === 'priceTax') {
-            return $this->price + $this->tax;
-        }
-
-        if ($attribute === 'subtotal') {
-            return $this->qty * $this->price;
-        }
-
-        if ($attribute === 'total') {
-            return $this->qty * ($this->priceTax);
-        }
-
-        if ($attribute === 'tax') {
-            return $this->price * ($this->taxRate / 100);
-        }
-
-        if ($attribute === 'taxTotal') {
-            return $this->tax * $this->qty;
-        }
-
-        if ($attribute === 'model' && isset($this->associatedModel)) {
-            return with(new $this->associatedModel)->find($this->id);
-        }
-
-        return null;
-    }
-
-    public static function fromBuyable(Buyable $item, array $options = [])
-    {
-        return new self($item->getBuyableIdentifier($options), $item->getBuyableDescription($options), $item->getBuyablePrice($options), $options);
     }
 
     public static function fromArray(array $attributes)
@@ -170,41 +81,5 @@ class CartItem implements Arrayable, Jsonable
         ksort($options);
 
         return md5($id . serialize($options));
-    }
-
-    public function toArray()
-    {
-        return [
-            'rowId'    => $this->rowId,
-            'id'       => $this->id,
-            'name'     => $this->name,
-            'qty'      => $this->qty,
-            'price'    => $this->price,
-            'options'  => $this->options->toArray(),
-            'tax'      => $this->tax,
-            'subtotal' => $this->subtotal
-        ];
-    }
-
-    public function toJson($options = 0)
-    {
-        return json_encode($this->toArray(), $options);
-    }
-
-    private function numberFormat($value, $decimals, $decimalPoint, $thousandSeperator)
-    {
-        if (is_null($decimals)) {
-            $decimals = is_null(config('cart.format.decimals')) ? 2 : config('cart.format.decimals');
-        }
-
-        if (is_null($decimalPoint)) {
-            $decimalPoint = is_null(config('cart.format.decimal_point')) ? '.' : config('cart.format.decimal_point');
-        }
-
-        if (is_null($thousandSeperator)) {
-            $thousandSeperator = is_null(config('cart.format.thousand_seperator')) ? ',' : config('cart.format.thousand_seperator');
-        }
-
-        return number_format($value, $decimals, $decimalPoint, $thousandSeperator);
     }
 }
