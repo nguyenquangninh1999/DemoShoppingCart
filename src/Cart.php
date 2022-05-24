@@ -23,10 +23,9 @@ class Cart
 
     private $instance;
 
-    public function __construct(SessionManager $session, Dispatcher $events)
+    public function __construct(SessionManager $session)
     {
         $this->session = $session;
-        $this->events  = $events;
 
         $this->instance = self::DEFAULT_INSTANCE;
     }
