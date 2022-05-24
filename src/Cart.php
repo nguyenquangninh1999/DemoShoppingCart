@@ -1,6 +1,7 @@
 <?php
 
 namespace Ninh\ShoppingCart;
+
 use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Session\SessionManager;
@@ -40,11 +41,11 @@ class Cart
 
     public function add($id, $name = null, $qty = null, $price = null, array $options = [])
     {
-//        if ($this->isMulti($id)) {
-//            return array_map(function ($item) {
-//                return $this->add($item);
-//            }, $id);
-//        }
+        //        if ($this->isMulti($id)) {
+        //            return array_map(function ($item) {
+        //                return $this->add($item);
+        //            }, $id);
+        //        }
 
         $cartItem = $this->createCartItem($id, $name, $qty, $price, $options);
 
@@ -56,7 +57,7 @@ class Cart
 
         $content->put($cartItem->rowId, $cartItem);
 
-        $this->events->fire('cart.added', $cartItem);
+        // $this->events->fire('cart.added', $cartItem);
 
         $this->session->put($this->instance, $content);
 
@@ -82,7 +83,7 @@ class Cart
             $cartItem->setQuantity($qty);
         }
 
-//        $cartItem->setTaxRate(config('cart.tax'));
+        //        $cartItem->setTaxRate(config('cart.tax'));
 
         return $cartItem;
     }
