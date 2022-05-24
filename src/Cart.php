@@ -11,6 +11,7 @@ use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Gloudemans\Shoppingcart\Exceptions\UnknownModelException;
 use Gloudemans\Shoppingcart\Exceptions\InvalidRowIDException;
 use Gloudemans\Shoppingcart\Exceptions\CartAlreadyStoredException;
+use Illuminate\Support\Facades\DB;
 
 class Cart
 {
@@ -101,22 +102,22 @@ class Cart
     {
         $cartItem = $this->get($rowId);
 
-        if (is_array($qty)) {
-            $cartItem->updateFromArray($qty);
-        } else {
-            $cartItem->qty = $qty;
-        }
+        // if (is_array($qty)) {
+        //     $cartItem->updateFromArray($qty);
+        // } else {
+        $cartItem->qty = $qty;
+        // }
 
         $content = $this->getContent();
 
-        if ($rowId !== $cartItem->rowId) {
-            $content->pull($rowId);
+        // if ($rowId !== $cartItem->rowId) {
+        //     $content->pull($rowId);
 
-            if ($content->has($cartItem->rowId)) {
-                $existingCartItem = $this->get($cartItem->rowId);
-                $cartItem->setQuantity($existingCartItem->qty + $cartItem->qty);
-            }
-        }
+        //     if ($content->has($cartItem->rowId)) {
+        //         $existingCartItem = $this->get($cartItem->rowId);
+        //         $cartItem->setQuantity($existingCartItem->qty + $cartItem->qty);
+        //     }
+        // }
 
         if ($cartItem->qty <= 0) {
             $this->remove($cartItem->rowId);
@@ -149,9 +150,28 @@ class Cart
     {
         $content = $this->getContent();
 
-        if (!$content->has($rowId))
-            throw new InvalidRowIDException("The cart does not contain rowId {$rowId}.");
+        // if (!$content->has($rowId))
+        //     throw new InvalidRowIDException("The cart does not contain rowId {$rowId}.");
 
         return $content->get($rowId);
+    }
+
+    public function store($identifier)
+    {
+        $content = $this->getContent();
+
+        DB::table(config('cart.database.table'))->insert([
+            'identifier' => $identifier,
+            'instance' => $this->instance ?? 'default',
+            'content' => serialize($content)
+        ]);
+
+        // $this->getConnection()->table($this->getTableName())->insert([
+        //     'identifier' => $identifier,
+        //     'instance' => $this->currentInstance(),
+        //     'content' => serialize($content)
+        // ]);
+
+        // $this->events->fire('cart.stored');
     }
 }
