@@ -174,4 +174,15 @@ class Cart
 
         // $this->events->fire('cart.stored');
     }
+
+    public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        $content = $this->getContent();
+
+        $total = 0;
+        foreach ($content as $value) {
+            $total += $value->qty * $value->price;
+        }
+        return $total ?? 0;
+    }
 }
