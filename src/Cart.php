@@ -21,7 +21,7 @@ class Cart
 
     private $events;
 
-    private $instance;
+    private $instance='';
 
     public function __construct(SessionManager $session)
     {
