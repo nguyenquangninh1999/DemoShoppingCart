@@ -30,22 +30,8 @@ class Cart
         $this->instance = self::DEFAULT_INSTANCE;
     }
 
-    // public function instance($instance = null)
-    // {
-    //     $instance = $instance ?: self::DEFAULT_INSTANCE;
-
-    //     $this->instance = sprintf('%s.%s', 'cart', $instance);
-
-    //     return $this;
-    // }
-
     public function add($id, $name = null, $qty = null, $price = null, array $options = [])
     {
-        //        if ($this->isMulti($id)) {
-        //            return array_map(function ($item) {
-        //                return $this->add($item);
-        //            }, $id);
-        //        }
 
         $cartItem = $this->createCartItem($id, $name, $qty, $price, $options);
 
@@ -56,8 +42,6 @@ class Cart
         }
 
         $content->put($cartItem->rowId, $cartItem);
-
-        // $this->events->fire('cart.added', $cartItem);
 
         $this->session->put($this->instance, $content);
 
@@ -83,8 +67,6 @@ class Cart
             $cartItem->setQuantity($qty);
         }
 
-        //        $cartItem->setTaxRate(config('cart.tax'));
-
         return $cartItem;
     }
 
@@ -101,22 +83,9 @@ class Cart
     {
         $cartItem = $this->get($rowId);
 
-        // if (is_array($qty)) {
-        //     $cartItem->updateFromArray($qty);
-        // } else {
         $cartItem->qty = $qty;
-        // }
 
         $content = $this->getContent();
-
-        // if ($rowId !== $cartItem->rowId) {
-        //     $content->pull($rowId);
-
-        //     if ($content->has($cartItem->rowId)) {
-        //         $existingCartItem = $this->get($cartItem->rowId);
-        //         $cartItem->setQuantity($existingCartItem->qty + $cartItem->qty);
-        //     }
-        // }
 
         if ($cartItem->qty <= 0) {
             $this->remove($cartItem->rowId);
@@ -124,8 +93,6 @@ class Cart
         } else {
             $content->put($cartItem->rowId, $cartItem);
         }
-
-        // $this->events->fire('cart.updated', $cartItem);
 
         $this->session->put($this->instance, $content);
 
@@ -140,17 +107,12 @@ class Cart
 
         $content->pull($cartItem->rowId);
 
-        // $this->events->fire('cart.removed', $cartItem);
-
         $this->session->put($this->instance, $content);
     }
 
     public function get($rowId)
     {
         $content = $this->getContent();
-
-        // if (!$content->has($rowId))
-        //     throw new InvalidRowIDException("The cart does not contain rowId {$rowId}.");
 
         return $content->get($rowId);
     }
@@ -164,14 +126,6 @@ class Cart
             'instance' => $this->instance ?? 'default',
             'content' => serialize($content)
         ]);
-
-        // $this->getConnection()->table($this->getTableName())->insert([
-        //     'identifier' => $identifier,
-        //     'instance' => $this->currentInstance(),
-        //     'content' => serialize($content)
-        // ]);
-
-        // $this->events->fire('cart.stored');
     }
 
     public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
